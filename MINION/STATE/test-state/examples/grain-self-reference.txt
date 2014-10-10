@@ -1,0 +1,29 @@
+## http://docs.saltstack.com/topics/targeting/grains.html
+
+MATCHING GRAINS IN THE TOP FILE
+With correctly setup grains on the Minion, the Top file used in Pillar or during Highstate can be made really efficient. Like for example, you could do:
+
+'node_type:web':
+    - match: grain
+    - webserver
+
+'node_type:postgres':
+    - match: grain
+    - database
+
+'node_type:redis':
+    - match: grain
+    - redis
+
+'node_type:lb':
+    - match: grain
+    - lb
+For this example to work, you would need the grain node_type and the correct value to match on. 
+This simple example is nice, but too much of the code is similar.
+To go one step further, we can place some Jinja template code into the Top file.
+
+{% set self = grains['node_type'] %}
+
+    'node_type:{{ self }}':
+        - match: grain
+        - {{ self }}

@@ -1,0 +1,26 @@
+## salt-cloud -m /srv/salt/nodes/app-nodemap.yml
+myapp-instance:
+  - myapp1:
+      minion:
+        log_level: debug
+      grains:
+        role: 
+          - myapp
+          - dev
+          - redis_master
+  - myapp2:
+      minion:
+        log_level: debug
+      grains:
+        role:
+          - myapp
+          - dev
+          - redis_slave
+  - myapp3:
+      minion:
+        log_level: debug
+      grains:
+        role:
+          - raptor
+          - dev
+          - redis_slave
