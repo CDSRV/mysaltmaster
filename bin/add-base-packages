@@ -1,0 +1,16 @@
+#!/bin/bash
+
+PKG_FILE=$MYSALT/base-packages-$HIGHLEVEL_PACKAGE_MANAGER.list
+[ -e $PKG_FILE ] || { echo "##> $PKG_FILE : not found"; exit 1; }
+echo "##> PKG_FILE=$PKG_FILE"
+echo "##> installing ... "
+
+# TODO: support yum
+#[ "$HIGHLEVEL_PACKAGE_MANAGER" = "yum" ] && INSTALL_CMD="yum install -y"
+
+
+[ "$HIGHLEVEL_PACKAGE_MANAGER" = "apt" ] && INSTALL_CMD="apt-get install -y"
+
+DEBIAN_FRONTEND=noninteractive
+
+xargs -a <(awk '/^\s*[^#]/' "$PKG_FILE") -r -- $INSTALL_CMD

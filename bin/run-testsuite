@@ -1,0 +1,15 @@
+#!/bin/bash
+
+## https://docs.saltstack.com/en/develop/topics/development/tests/index.html 
+
+ACTIVATE=${ACTIVATE:-$HOME/bin/activate-saltstack-env}
+
+echo "##> running test suite"
+. $ACTIVATE
+
+## unit tests
+( cd $BASE_DIR/salt; python tests/runtests.py --unit )
+
+# or full suite
+# stop-services
+# $BASE_DIR/salt/setup.py test

@@ -1,0 +1,34 @@
+# compiler & essential tools
+curl
+git
+gcc 
+make
+bzip2
+mlocate
+libffi-dev
+rng-tools
+virt-what
+libconfig-merge-perl
+# ssl
+libssl-dev
+libssl-doc
+ca-certificates
+# python
+python-setuptools
+python-pip
+python-virtualenv
+virtualenv
+virtualenvwrapper
+swig
+swig-doc
+python-crypto
+python-crypto-doc
+# yaml
+libyaml-dev
+libyaml-doc
+libyaml-cpp-dev 
+# zeromq
+libzmq-dev
+libmsgpack-dev
+# for test suite
+iputils-ping

@@ -1,0 +1,1 @@
+docker run -w /root/mysaltmaster -v ${PWD}:/root/mysaltmaster:ro -it ubuntu /bin/bash

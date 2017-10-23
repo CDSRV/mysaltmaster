@@ -1,0 +1,11 @@
+#!/bin/bash -x
+
+## sets the custom python environment in current user's session
+
+[ -z $PY_ENV_PATH ] && { echo "##> PY_ENV_PATH is undefined"; exit 1; }
+[ -z $PY_ENV ] && { echo "##> PY_ENV is undefined"; exit 1; }
+[ -z $ACTIVATE ] && { echo "##> ACTIVATE is undefined"; exit 1; }
+
+( grep activate-saltstack-env "$HOME/.bash_profile" ) ||  (echo ". $ACTIVATE" >> $HOME/.bash_profile)
+
+( grep PATH "$HOME/.bash_profile" | grep HOME/bin ) || ( echo 'PATH=$HOME/bin:$PATH' >> $HOME/.bash_profile)

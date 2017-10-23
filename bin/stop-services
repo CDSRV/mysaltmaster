@@ -1,0 +1,22 @@
+#!/bin/bash
+
+stop_services () {
+( pgrep -c salt-master &>/dev/null ) && pkill salt-master
+( pgrep -c salt-minion &>/dev/null ) && pkill salt-minion
+}
+
+check_processes () {
+ps -ef | grep salt-m | grep -v grep | grep -v $MYSALT
+}
+## not using pgrep to also include defunct python processes
+## TODO: multi-platform args to ps
+
+SHUTDOWN_WAIT=${SHUTDOWN_WAIT:-10}
+
+check_processes && ( echo "##> stopping services... waiting ${SHUTDOWN_WAIT}s"; stop_services )
+
+sleep $SHUTDOWN_WAIT
+
+check_processes && { echo "##> ERROR : salt services are running"; pgrep -a salt; exit 1; }
+
+check_processes || echo "##> OK : no services running"

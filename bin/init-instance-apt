@@ -1,0 +1,9 @@
+#!/bin/bash -e
+
+# setup-network
+# add-repos
+
+DEBIAN_FRONTEND=noninteractive
+echo "##> updating system"
+apt-get update
+apt-get dist-upgrade -y

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# check directory
+[ -d $MYSALT/bin ] || { echo "##> please verify MYSALT and rerun"; exit 1; }
+
+PKG_FILE=$MYSALT/virtualenv-packages.list
+echo "##> using PKG_FILE : "$PKG_FILE
+echo "##> installing "
+
+INSTALL_CMD="pip install --upgrade"
+xargs -a <(awk '/^\s*[^#]/' "$PKG_FILE") -r -- $INSTALL_CMD

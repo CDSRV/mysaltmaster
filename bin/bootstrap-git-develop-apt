@@ -1,0 +1,108 @@
+#!/bin/bash -e
+
+
+## SETUP DEVELOPMENT VERSION OF SALT
+# http://docs.saltstack.com/topics/installation/index.html?highlight=dependencies
+# http://docs.saltstack.com/topics/hacking.html#installing-salt-from-the-python-package-index
+
+
+# check directory
+[ -d $MYSALT/bin ] || { echo "##> please verify access : MYSALT=$MYSALT and rerun"; exit 1; }
+
+$MYSALT/bin/add-base-packages
+
+## these are defined in local ENV or at top level INSTALL.sh 
+BASE_DIR=${BASE_DIR:?-required}
+PY_ENV_PATH=${PY_ENV_PATH:?-required}
+PY_ENV=${PY_ENV:?-required}
+
+cd $BASE_DIR
+
+
+setup_venv () {
+echo "##> setting up python virtualenv"
+[ -d $PY_ENV ] || mkdir -p $PY_ENV
+[ -d $HOME/bin ] || mkdir $HOME/bin
+
+virtualenv $PY_ENV
+virtualenv --system-site-packages --relocatable $PY_ENV
+
+# write to canonical location in user environment
+[ -d $HOME/bin ] || mkdir $HOME/bin
+echo "
+. $PY_ENV_PATH/bin/activate
+export MYSALT=${MYSALT}
+export BASE_DIR=${BASE_DIR}
+" > $ACTIVATE
+echo 'export PATH=${MYSALT}/bin:$PATH' >> $ACTIVATE
+
+chmod 644 $ACTIVATE
+
+. $PY_ENV_PATH/bin/activate
+}
+
+[ -z ${VIRTUAL_ENV} ] && setup_venv
+
+echo "##> VIRTUAL_ENV=${VIRTUAL_ENV}"
+
+add-virtualenv-packages
+
+GIT_CURL_VERBOSE=1
+
+cd $BASE_DIR
+
+echo "##> fetching upstream saltstack/salt"
+clone_upstream () {
+git clone https://github.com/saltstack/salt.git
+cd salt
+git remote add upstream https://github.com/saltstack/salt.git
+git fetch upstream
+git fetch --tags upstream
+git checkout develop
+git branch --set-upstream-to upstream/develop
+git pull --rebase
+}
+
+[ -d ./salt/.git ] || clone_upstream
+
+[ -d ./salt/.git ] && (cd ./salt; git fetch)
+
+
+cd $BASE_DIR
+echo "##> adding base components"
+pip install --upgrade -e ./salt   # the path to the salt git clone from above
+
+echo "##> adding libraries for test suite"
+pip install -r ./salt/requirements/dev_python27.txt
+pip install -r ./salt/requirements/zeromq.txt
+
+echo "##> adding halite web ui"
+
+pip install --upgrade halite
+
+## TODO : generate custom cert
+cd /etc/ssl/certs/
+
+create_key () {
+	openssl req -batch -new -nodes -out localhost.csr -keyout localhost.key
+	openssl x509 -in localhost.csr -out localhost.crt -req -signkey localhost.key -days 999
+	chmod 600 /etc/ssl/certs/localhost.key
+}
+
+[ -e /etc/ssl/certs/localhost.csr ] || create_key
+
+cd $MYSALT
+
+add-local-user
+
+echo "##> adding utilities in /usr/local/bin"
+cp -pv ${MYSALT}/MASTER/rootfs/usr/local/bin/* /usr/local/bin
+
+echo "##> adding localhost entry for salt host"
+grep salt /etc/hosts || (echo "127.0.0.1 salt" >> /etc/hosts)
+
+echo "##> SALT development branch is now installed at $BASE_DIR/salt"
+( cd $BASE_DIR/salt; git status; salt --versions )
+echo "##> running from python virtual environment at $VIRTUAL_ENV"
+echo "##> environment activation include file is at $ACTIVATE"
+

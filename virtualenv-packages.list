@@ -1,0 +1,15 @@
+pip
+pyzmq
+pyYAML
+pyOpenSSL
+pycrypto
+msgpack-python
+jinja2
+psutil
+cherrypy>=3.0.8,<09.0.0
+pyinotify
+jsonschema
+dnspython
+GitPython
+timelib
+lxml

@@ -1,0 +1,43 @@
+#!/bin/bash -ex
+
+# this creates /etc/salt or deletes any symlinks present there
+# then selectively links from the local development environment to the standard locations of config files
+# (separating dynamic data from configs)
+
+[ -d $MYSALT ] || { echo "##> please verify access : MYSALT=$MYSALT and rerun"; exit 1; }
+
+ETC_SALT=$MYSALT/MASTER/rootfs/etc/salt
+
+MSG="##> MYSALT=$MYSALT"
+MSG="##> ETC_SALT=$ETC_SALT"
+
+[ -d /etc/salt ] || mkdir /etc/salt
+
+cd /etc/salt
+find . -type l | xargs rm -f
+
+## link all items
+cd 
+for item in $(ls ${ETC_SALT}) 
+do
+ln -s ${ETC_SALT}/$item /etc/salt/
+done
+
+## link specific items
+#ln -s $ETC_SALT/master
+#ln -s $ETC_SALT/master.d
+#ln -s $ETC_SALT/minion
+#ln -s $ETC_SALT/cloud.profiles.d
+#ln -s $ETC_SALT/cloud.providers.d
+
+
+[ -d /srv ] || mkdir /srv
+
+cd /srv
+
+find . -type l | xargs rm -f
+
+## 
+ln -s $MYSALT/MINION/STATE salt
+ln -s $MYSALT/MINION/PILLAR pillar
+ln -s $MYSALT/MINION/REACTOR reactor

@@ -1,0 +1,11 @@
+#!/bin/bash
+
+echo "##> adding local user for web UI"
+add_saltrunner_user () {
+	PASSWD=$(openssl rand -base64 12)
+	adduser  --disabled-login --gecos "saltrunner" saltrunner
+	echo "saltrunner:$PASSWD" | chpasswd
+	echo "##> saltrunner password is $PASSWD"
+}
+## 
+getent passwd saltrunner || add_saltrunner_user

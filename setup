@@ -1,0 +1,18 @@
+#!/bin/bash -ae
+
+[ -d /etc/apt ] || { echo "##> currently only supporting apt based distributions" ; exit 1; }
+## TODO : modify for multi-platform & test with centos
+
+MYSALT="${MYSALT:-$PWD}"
+
+ACTIVATE=$HOME/bin/activate-saltstack-env
+
+echo "##> MYSALT=$MYSALT"
+[ -e $ACTIVATE ] || ( echo "##> no current environment found" )
+
+cd $MYSALT
+./INSTALL.sh
+
+[ -e $ACTIVATE ] && ( echo "##> ~/.bash_profile will source the custom environment with ${ACTIVATE}" )
+
+echo "##> start services with ${MYSALT}/bin/start-services"

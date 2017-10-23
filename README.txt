@@ -3,109 +3,109 @@ mysaltmaster
 
 A starting point for salt master/minion configs, formulas, recipes, etc
 
-(This sets up a development environment)
+based on : https://docs.saltstack.com/en/develop/topics/development/hacking.html
 
-Contents:
-(currently only explicitly supporting CentOS 6)
--- please review these files and edit before running/deploying
+Introduction :
+
+Why use this framework?
+- run the latest upstream version of salt in a python virtualenv
+- use default variables and paths for config files, enabling portability
+- use separate locations for salt source, python code, logs, keys, cache and runtime config
+- maintain configs in source control without binaries or keys in the tree
+- deploy a read-only runtime config (this repo) in a container
+
+
+Features:
+( please review these files and edit before running/deploying )
+- includes all relevant config files for setting up master+minion
+- starts services with localhost as minion of itself
+- includes minimal test states and web interface
+- modular configuration of virtualenv location and package dependencies
 
 Getting Started:
 ----------------
-cd MASTER < this is very important, the script doesn't know where you unpacked it, so change directories in..
+- with a clean VM or container -
+## currently only supports ubuntu
 
-./INSTALL.sh < run this first, it will do everything except make toast
+#!/bin/bash
+## start setup
+## checkout upstream
+git clone https://github.com/CDSRV/mysaltmaster.git
+cd mysaltmaster
+git remote add upstream https://github.com/CDSRV/mysaltmaster.git
+git fetch upstream
+git fetch --tags upstream
 
-./CLEAN.sh < run this as needed to clear out keys so you can start fresh with a new master or minion
+## set local origin
+git remote remove origin
+git remote add origin $my-repo
+#..etc..
+
+## (as root)
+## optionally set defaults - not required
+
+export MYSALT=$full/path/to/this-repo
+# defaults to $PWD
+
+export BASE_DIR=$full/path/where-to-setup-the-code
+# defaults to /usr/local/src
+
+export PY_ENV=name-of-your-python-venv
+# defaults to python-salt-develop
+  
+./setup 
+# single entry point, re-run to reconfigure locations or update packages
+# - will stop any running services before proceeding
+# - adds local user 'saltrunner' (with random password) to access halite UI
+# - adds hooks to ~/.bash_profile to source the custom environment 
+# - debug logging on by default
+
+./bin/start-services
+# - starts services in foreground windows if Xserver is detected
+# - otherwise starts services in background
+
+./MASTER/CLEAN.sh
+# run this as needed to clear out keys, logs and cache
+
+##
+
+## 
+Package Requirement Files:
+
+base-packages-[apt|yum].list
+# per linux distribution type
+
+virtualenv-packages.list
+# for pip
+
+
+
+Directory Structure:
 
 ================
-MASTER/ROOT <<  "/" for saltmaster config files
-
- -> etc/salt	<< sample config files
+ -> /bin    << setup scripts
  
- -> root/bin 	<< initial setup scripts for master/minion
- 
- 		-> these are all handled by MASTER/INSTALL.sh
- 			
- 		-- to manage minion binding :
- 			+ on master, run 'salt-key' command
-
- -> root/bin 	<< other ditties for general productivity
- 
-  		-> s		<< cmd-alias for "salt '*'"
-  		-> test-states << runs highstate in test mode
- 
- 			
+		-> these are all handled by INSTALL.sh
 
 ================
-MINION/STATE	<< mapped to the file_roots (standard is /srv/salt)
+MASTER/rootfs <<  "/"
+
+ -> etc/salt	<< runtime config files
+ 
+
+ -> usr/local/bin 	<< operational scripts
+ 
+		-> test-states << runs highstate in test mode
+
+================
+MINION/STATE	<< linked at /srv/salt
 
  -> /test		<< simple test state for installation verification
- 
- -> /$PLATFORM_$COMPONENT_$ENV << use variables for REGULAR directory structure. 
- .. create modules to be layered into general>>specific configs
- .. change scope up and down application stack
- -> $GENERIC_SCOPE-$SPECIFIC_SCOPE-$LOCAL_CONFIG
- 
-((*****))
- 	naming convention for config-file templates
- 	goals:
- 	* preserve original filename
- 	* explicitly define the template type (no assumptions)
 
-	$FILENAME-$TEMPLATE_TYPE
-
-		eg,
-
-	resolv.conf-jinja
-
-	nsswitch.conf-redhat
-	nsswitch.conf-ubuntu
-
-((*****))
-	path spec for storing config files:
-	goals:
-	* preserve original filename
-	* preserve original full path
-
-	$STATE/ROOT/$OS_PATH/$FILENAME
-
-		eg,
-
-	OS_NET/ROOT/etc/resolv.conf
-	OS_NET/ROOT/etc/resolv.conf-jinja
-
-	OS_BASE/ROOT/etc/profile
- 
- 
- 
 ================
-MINION/PILLAR	<< mapped to the pillar_roots (standard is /srv/pillar)
+MINION/PILLAR	<< linked at /srv/pillar
 
-((*****))
- 	naming convention for pillar files
- 	goals:
- 	* match relevant STATE name exactly
- 	* append customer/environment/specifics
+================
+MINION/REACTOR   << linked at /srv/reactor
 
-	$STATE-$CUSTOM.sls
-
-		eg,
-
-	OS_AUTH-customer.sls
-
-
-((*****))
-	variable spec for templating config files:
-	goals:
-	* preserve original package names
-	* preserve original variable names
-	
-	$PILLAR/$STATE.sls
-	  $PKG:
-	  	VAR = {{ VAR }}
- 
- ================
-MINION/REACTOR   << mapped to /srv/reactor on master (is there a reactor_root variable?)
-
-(mappings are defined in /etc/salt/master.d/reactor.conf on master)
  
