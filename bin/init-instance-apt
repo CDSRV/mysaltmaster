@@ -3,7 +3,10 @@
 # setup-network
 # add-repos
 
-DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
+echo 'debconf debconf/frontend select Dialog' | debconf-set-selections
+
 echo "##> updating system"
 apt-get update
+apt-get install -y apt-utils
 apt-get dist-upgrade -y

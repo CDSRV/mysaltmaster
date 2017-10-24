@@ -11,6 +11,6 @@ echo "##> installing ... "
 
 [ "$HIGHLEVEL_PACKAGE_MANAGER" = "apt" ] && INSTALL_CMD="apt-get install -y"
 
-DEBIAN_FRONTEND=noninteractive
+export DEBIAN_FRONTEND=noninteractive
 
 xargs -a <(awk '/^\s*[^#]/' "$PKG_FILE") -r -- $INSTALL_CMD

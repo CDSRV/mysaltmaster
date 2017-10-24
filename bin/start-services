@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 ## starts salt master+minion services
 
@@ -10,10 +10,10 @@ ACTIVATE=${ACTIVATE:-$HOME/bin/activate-saltstack-env}
 check_processes () {
 # ps -ef | grep salt | grep -v grep | grep -v $0 | grep -v $MYSALT
 ## use expanded scope to catch defunct python interpreters
-pgrep -c salt-m
+pgrep -a salt-m
 }
 ## TODO: multi-platform args to ps
-check_processes && { echo "##> services are running"; exit 1; }
+check_processes && { echo "##> ERROR : salt services are running"; exit 1; }
 
 LOG_DIR=${LOG_DIR:-/var/log/salt}
 echo "##> LOG_DIR=${LOG_DIR}"
@@ -46,18 +46,27 @@ check_processes || echo "##> ERROR : ** no salt services running **"
 
 ## TODO : parameterize port number
 ## from halite.conf
-WEB_UI=$(curl -s http://localhost:8080) 
+WEB_UI=$(curl -s http://localhost:8080)
 
-## TODO : this step fails under docker
 [ -n WEB_UI ] && echo "##> OK : web interface is up at http://localhost:8080 - login as saltrunner"
 [ -n WEB_UI ] || echo "##> ERROR : web ui is not running"
 
-KEY_WAIT=${KEY_WAIT:-10}
+KEY_WAIT=${KEY_WAIT:-15}
 echo "##> waiting $KEY_WAIT sec to accept minion keys for localhost:"
 sleep $KEY_WAIT
-salt-key -A --include-all -y ## accept all
-salt-key -L	## list all
+salt-key -L ## list all
+salt-key -A -y ## accept all pending
+salt-key -L ## list all
 
 
-echo "##> services running :"
+echo "##> salt services running :"
 pgrep -a salt
+
+## don't exit >> 
+##
+## if running in container
+#[ -f /.dockerenv ] && tail -f $LOG_DIR/*
+
+## if called with '--tail' arg
+[ "$1" = "--tail" ] && tail -f $LOG_DIR/*
+## to allow running interactively in container
