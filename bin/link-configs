@@ -4,11 +4,11 @@
 # then selectively links from the local development environment to the standard locations of config files
 # (separating dynamic data from configs)
 
-[ -d $MYSALT ] || { echo "##> please verify access : MYSALT=$MYSALT and rerun"; exit 1; }
+[ -d $SALT_HOME ] || { echo "##> please verify access : SALT_HOME=$SALT_HOME and rerun"; exit 1; }
 
-ETC_SALT=$MYSALT/MASTER/rootfs/etc/salt
+ETC_SALT=$SALT_HOME/MASTER/rootfs/etc/salt
 
-MSG="##> MYSALT=$MYSALT"
+MSG="##> SALT_HOME=$SALT_HOME"
 MSG="##> ETC_SALT=$ETC_SALT"
 
 [ -d /etc/salt ] || mkdir /etc/salt
@@ -38,6 +38,6 @@ cd /srv
 find . -type l | xargs rm -f
 
 ## 
-ln -s $MYSALT/MINION/STATE salt
-ln -s $MYSALT/MINION/PILLAR pillar
-ln -s $MYSALT/MINION/REACTOR reactor
+ln -s $SALT_HOME/MINION/STATE salt
+ln -s $SALT_HOME/MINION/PILLAR pillar
+ln -s $SALT_HOME/MINION/REACTOR reactor

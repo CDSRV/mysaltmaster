@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # check directory
-[ -d $MYSALT/bin ] || { echo "##> please verify MYSALT and rerun"; exit 1; }
+[ -d $SALT_HOME/bin ] || { echo "##> please verify SALT_HOME and rerun"; exit 1; }
 
-PKG_FILE=$MYSALT/virtualenv-packages.list
+PKG_FILE=$SALT_HOME/virtualenv-packages.list
 echo "##> using PKG_FILE : "$PKG_FILE
 echo "##> installing "
 

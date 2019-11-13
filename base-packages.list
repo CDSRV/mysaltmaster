@@ -1,0 +1,41 @@
+# compiler & essential tools
+curl
+git
+gcc 
+make
+bzip2
+mlocate
+libffi-devel
+rng-tools
+virt-what
+libconfig
+# ssl
+openssl-devel
+ca-certificates
+# python
+python-setuptools-wheel
+python2-devel
+python3-devel
+python2-pip
+python3-pip
+python-pip-doc
+python-virtualenv
+python3-virtualenv
+python3-virtualenvwrapper
+swig
+swig-doc
+swig-gdb
+python2-m2crypto
+python3-m2crypto
+python2-asn1crypto
+python3-asn1crypto
+# yaml
+libyaml
+libyaml-devel 
+# zeromq
+zeromq-devel
+msgpack-devel
+# for test suite
+tcping
+# for local user
+passwd

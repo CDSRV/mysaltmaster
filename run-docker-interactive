@@ -1,1 +1,14 @@
-docker run -w /root/mysaltmaster -v ${PWD}:/root/mysaltmaster:ro -it ubuntu /bin/bash
+#!/usr/bin/env bash
+
+NAME=${NAME:-salt-develop}
+
+CONTAINER=$(docker ps -a --filter name=$NAME --format "{{.Names}}")
+
+[[ $CONTAINER = $NAME ]] && ( docker start $NAME && docker exec -it  $NAME /bin/bash )
+
+[[ $CONTAINER = $NAME ]] || ( docker run --publish-all --name $NAME -w /root/mysaltmaster -v ${PWD}:/root/mysaltmaster:ro -it salt-develop /bin/bash )
+
+## NOTE : 
+## - services will *NOT* be running if container is created with this command
+## - use to run setup manually
+## - use to debug running container

@@ -1,15 +1,14 @@
 #!/bin/bash -e
 
-
 ## SETUP DEVELOPMENT VERSION OF SALT
 # http://docs.saltstack.com/topics/installation/index.html?highlight=dependencies
 # http://docs.saltstack.com/topics/hacking.html#installing-salt-from-the-python-package-index
 
 
 # check directory
-[ -d $MYSALT/bin ] || { echo "##> please verify access : MYSALT=$MYSALT and rerun"; exit 1; }
+[ -d $SALT_HOME/bin ] || { echo "##> please verify access : SALT_HOME=$SALT_HOME and rerun"; exit 1; }
 
-$MYSALT/bin/add-base-packages
+$SALT_HOME/bin/add-base-packages
 
 ## these are defined in local ENV or at top level INSTALL.sh 
 BASE_DIR=${BASE_DIR:?-required}
@@ -31,10 +30,10 @@ virtualenv --system-site-packages --relocatable $PY_ENV
 [ -d $HOME/bin ] || mkdir $HOME/bin
 echo "
 . $PY_ENV_PATH/bin/activate
-export MYSALT=${MYSALT}
+export SALT_HOME=${SALT_HOME}
 export BASE_DIR=${BASE_DIR}
 " > $ACTIVATE
-echo 'export PATH=${MYSALT}/bin:$PATH' >> $ACTIVATE
+echo 'export PATH=${SALT_HOME}/bin:$PATH' >> $ACTIVATE
 
 chmod 644 $ACTIVATE
 
@@ -47,33 +46,47 @@ echo "##> VIRTUAL_ENV=${VIRTUAL_ENV}"
 
 add-virtualenv-packages
 
+## TODO : refactor into base+git image or with checkout in its own volume
+
 GIT_CURL_VERBOSE=1
 
 cd $BASE_DIR
 
-echo "##> fetching upstream saltstack/salt"
+
+
+echo "##> fetching upstream repo"
+set -x
+REPO_URL=${REPO_URL:-https://github.com/saltstack/salt.git}
+REPO_REF=${REPO_REF:-develop}
+
 clone_upstream () {
-git clone https://github.com/saltstack/salt.git
+git clone $REPO_URL
 cd salt
-git remote add upstream https://github.com/saltstack/salt.git
+git remote add upstream $REPO_URL
 git fetch upstream
 git fetch --tags upstream
-git checkout develop
-git branch --set-upstream-to upstream/develop
+git checkout --track upstream/$REPO_REF
+git branch --set-upstream-to upstream/$REPO_REF
 git pull --rebase
 }
 
 [ -d ./salt/.git ] || clone_upstream
 
 [ -d ./salt/.git ] && (cd ./salt; git fetch)
-
+set +x
 
 cd $BASE_DIR
 echo "##> adding base components"
 pip install --upgrade -e ./salt   # the path to the salt git clone from above
 
-echo "##> adding libraries for test suite"
+echo "##> adding additinoal libraries"
+pip install -r ./salt/requirements/base.txt
+pip install -r ./salt/requirements/dev.txt
 pip install -r ./salt/requirements/dev_python27.txt
+pip install -r ./salt/requirements/dev_python34.txt
+# pip install -r ./salt/requirements/opt.txt ## error in mysql lib
+pip install -r ./salt/requirements/pytest.txt
+pip install -r ./salt/requirements/tests.txt
 pip install -r ./salt/requirements/zeromq.txt
 
 echo "##> adding halite web ui"
@@ -91,17 +104,17 @@ create_key () {
 
 [ -e /etc/ssl/certs/localhost.csr ] || create_key
 
-cd $MYSALT
+cd $SALT_HOME
 
 add-local-user
 
 echo "##> adding utilities in /usr/local/bin"
-cp -pv ${MYSALT}/MASTER/rootfs/usr/local/bin/* /usr/local/bin
+cp -pv ${SALT_HOME}/MASTER/rootfs/usr/local/bin/* /usr/local/bin
 
 echo "##> adding localhost entry for salt host"
 grep salt /etc/hosts || (echo "127.0.0.1 salt" >> /etc/hosts)
 
-echo "##> SALT development branch is now installed at $BASE_DIR/salt"
+echo "##> SALT $REPO_REF branch is now installed at $BASE_DIR/salt"
 ( cd $BASE_DIR/salt; git status; salt --versions )
 echo "##> running from python virtual environment at $VIRTUAL_ENV"
 echo "##> environment activation include file is at $ACTIVATE"

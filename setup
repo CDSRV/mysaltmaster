@@ -1,18 +1,25 @@
 #!/bin/bash -ae
 
-[ -d /etc/apt ] || { echo "##> currently only supporting apt based distributions" ; exit 1; }
-## TODO : modify for multi-platform & test with centos
+SOURCE="${BASH_SOURCE[0]}"
 
-MYSALT="${MYSALT:-$PWD}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+
+DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+SALT_HOME="${SALT_HOME:-$DIR}"
 
 ACTIVATE=$HOME/bin/activate-saltstack-env
 
-echo "##> MYSALT=$MYSALT"
+echo "##> SALT_HOME=$SALT_HOME"
 [ -e $ACTIVATE ] || ( echo "##> no current environment found" )
 
-cd $MYSALT
+cd $SALT_HOME
 ./INSTALL.sh
 
 [ -e $ACTIVATE ] && ( echo "##> ~/.bash_profile will source the custom environment with ${ACTIVATE}" )
 
-echo "##> start services with ${MYSALT}/bin/start-services"
+echo "##> start services with ${SALT_HOME}/bin/start-services"

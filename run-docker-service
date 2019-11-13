@@ -1,1 +1,16 @@
-docker run --init salt-develop
+#!/usr/bin/env bash
+
+NAME=${NAME:-salt-develop}
+
+CONTAINER=$(docker ps -a --filter name=$NAME --format "{{.Names}}")
+
+[[ $CONTAINER = $NAME ]] && ( docker start $NAME && docker attach $NAME  )
+
+[[ $CONTAINER = $NAME ]] || ( docker run --publish-all --name $NAME --init salt-develop )
+
+## TODO : volumes
+
+## NOTE : 
+## - services will be running if container is created with this command
+## - /var/log/salt/* is sent to stdout
+## - remove "--tail" option from dockerfile CMD to suppress output

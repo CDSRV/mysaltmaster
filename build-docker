@@ -1,1 +1,2 @@
 docker image build -t salt-develop .
+## TODO : use dockerfile template to replace path variables

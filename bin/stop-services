@@ -1,17 +1,20 @@
 #!/bin/bash
 
+/usr/bin/ps &>/dev/null || { echo "##> skipping process checks"; exit 0; }
+
 stop_services () {
 ( pgrep -c salt-master &>/dev/null ) && pkill salt-master
 ( pgrep -c salt-minion &>/dev/null ) && pkill salt-minion
 }
 
+## ps command not available in some base images
 check_processes () {
-ps -ef | grep salt-m | grep -v grep | grep -v $MYSALT
+ps -ef | grep salt-m | grep -v grep | grep -v $SALT_HOME
 }
 ## not using pgrep to also include defunct python processes
 ## TODO: multi-platform args to ps
 
-SHUTDOWN_WAIT=${SHUTDOWN_WAIT:-10}
+SHUTDOWN_WAIT=${SHUTDOWN_WAIT:-3} ## TODO : really wait
 
 check_processes && ( echo "##> stopping services... waiting ${SHUTDOWN_WAIT}s"; stop_services )
 

@@ -1,0 +1,5 @@
+#!/bin/bash -e
+
+echo "##> updating system"
+yum install -y yum-utils findutils procps-ng ## xargs and ps commands are not in base image
+yum update -y
