@@ -25,14 +25,15 @@ Features:
 
 Getting Started:
 ----------------
- 
+
 VM workflow
-	- checkout this repo & change directory
+	- checkout this repo & change/enter directory
 
 Step 1 - setup
 ## (as root)
 
 ./setup 
+
 # single entry point, re-run to reconfigure locations or update packages
 # - will stop any running services before proceeding
 # - adds local user 'saltrunner' to access halite UI
@@ -40,42 +41,50 @@ Step 1 - setup
 # - debug logging on by default
 
 Step 2 - run
+## (as root)
 
 ./bin/start-services
- - starts services in foreground windows if Xserver is detected
- - otherwise starts services in background
+
+# - starts services in foreground windows if Xserver is detected
+# - otherwise starts services in background
 
 ./MASTER/CLEAN.sh
-# run this as needed to clear out keys, logs and cache
+# - run this as needed to clear out keys, logs and cache
 
 
 Docker workflow
-	./build-docker # creates 'salt-develop' container from contents of current directory
-	./run-docker-service # starts a 'salt-develop' container with logging to foreground of current window
-	./run-docker-interactive # login to a running 'salt-develop' container or create one for manual installation
+## (as user in docker group)
+
+./build-docker 
+# - creates 'salt-develop' container from contents of current directory
+
+./run-docker-service 
+# - starts a 'salt-develop' container with logging to foreground of current window
+
+./run-docker-interactive
+# - login to a running 'salt-develop' container or create one for manual installation
 
 
 
 Directory Structure:
-
 ================
-/bin # setup scripts - these are all handled by INSTALL.sh
+/bin 				# setup scripts invoked by INSTALL.sh
 
 ================
 ## salt-master tree
-MASTER/rootfs 		# overlay filesystem
-	etc/salt				# runtime config files
+MASTER/rootfs 			# overlay filesystem
+	etc/salt		# runtime config files
 	usr/local/bin		# operational scripts
-		test-states		# runs highstate in test mode
+		test-states	# runs highstate in test mode
 ================
 ## salt-minion tree
 MINION/STATE			# linked at /srv/salt
-	/test					# simple test state for installation verification
+	/test			# simple test state for installation verification
 ================
 ## pillar tree
 MINION/PILLAR			# linked at /srv/pillar
 ## reactor tree
 ================
-MINION/REACTOR		# linked at /srv/reactor
+MINION/REACTOR			# linked at /srv/reactor
 
- 
+..
