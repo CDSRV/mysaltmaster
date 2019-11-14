@@ -76,14 +76,18 @@ based on : https://docs.saltstack.com/en/develop/topics/development/hacking.html
 
 ----------------
 ### salt-master tree
-MASTER/rootfs
-* overlay filesystem
-	etc/salt
-  * runtime config files
-	usr/local/bin
-  * operational scripts
-		test-states
-    * runs highstate in test mode
+
+`MASTER/rootfs`
+	* overlay filesystem
+
+etc/salt
+* runtime config files
+
+usr/local/bin
+* operational scripts
+
+test-states
+* runs highstate in test mode
 
 ----------------
 ### salt-minion tree
