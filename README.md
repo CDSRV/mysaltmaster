@@ -91,17 +91,18 @@ test-states
 
 ----------------
 ### salt-minion tree
-MINION/STATE
-* linked at /srv/salt
-	/test
-  * simple test state for installation verification
+`MINION/STATE`
+	* linked at /srv/salt
+
+/test
+* simple test state for installation verification
 
 ----------------
 ### pillar tree
-MINION/PILLAR
-* linked at /srv/pillar
+`MINION/PILLAR`
+	* linked at /srv/pillar
 
 ----------------
 ## reactor tree
-MINION/REACTOR
-* linked at /srv/reactor
+`MINION/REACTOR`
+	* linked at /srv/reactor
